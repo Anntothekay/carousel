@@ -4,7 +4,9 @@ export default class TestimonialCarousel {
     this.testimonialWrapper = this.container.querySelector(
       ".testimonial-wrapper"
     );
-    this.testimonials = this.container.querySelectorAll(".testimonial");
+    this.testimonials = Array.from(
+      this.container.querySelectorAll(".testimonial")
+    );
     this.dotsContainer = this.container.querySelector(".dots");
     this.currentIndex = 0;
 
@@ -13,14 +15,38 @@ export default class TestimonialCarousel {
 
   init() {
     document.addEventListener("DOMContentLoaded", () => {
+      this.initializeCarousel();
       this.updateCarousel();
       this.addEventListeners();
     });
   }
 
+  initializeCarousel() {
+    // Clone the last testimonial and insert it at the beginning
+    const firstTestimonial = this.testimonials[0];
+    const lastTestimonial = this.testimonials[this.testimonials.length - 1];
+    const firstTestimonialClone = firstTestimonial.cloneNode(true);
+    const lastTestimonialClone = lastTestimonial.cloneNode(true);
+
+    // Copy over the classes from the original testimonial
+    firstTestimonialClone.classList.add("next", "clone");
+    lastTestimonialClone.classList.add("prev", "clone");
+
+    this.testimonialWrapper.insertBefore(
+      firstTestimonialClone,
+      this.testimonials[this.testimonials.length - 1].nextSibling
+    );
+    this.testimonialWrapper.insertBefore(
+      lastTestimonialClone,
+      this.testimonials[0]
+    );
+
+    // Set the curr
+  }
+
   updateCarousel() {
     this.testimonialWrapper.style.transform = `translateX(-${
-      this.currentIndex * 600
+      (this.currentIndex + 1) * 600
     }px)`;
 
     const numTestimonials = this.testimonials.length;
