@@ -11,11 +11,15 @@ export default class TestimonialCarousel {
     this.minScreenSize = 800;
     this.currentIndex = 0;
 
+    this.isDesktopCarousel = window.innerWidth > this.minScreenSize;
+
+    window.addEventListener("resize", this.handleWindowResize.bind(this));
+
     this.init();
   }
 
   init() {
-    if (window.innerWidth > this.minScreenSize) {
+    if (this.isDesktopCarousel) {
       document.addEventListener("DOMContentLoaded", () => {
         this.initializeCarousel();
         this.updateCarousel();
@@ -43,8 +47,6 @@ export default class TestimonialCarousel {
       lastTestimonialClone,
       this.testimonials[0]
     );
-
-    // Set the curr
   }
 
   updateCarousel() {
@@ -108,6 +110,26 @@ export default class TestimonialCarousel {
     this.testimonials.forEach((testimonial, index) => {
       testimonial.addEventListener("click", () =>
         this.moveToTestimonial(index)
+      );
+    });
+  }
+
+  handleWindowResize() {
+    if (!this.isDesktopCarousel && window.innerWidth > 800) {
+      this.isDesktopCarousel = true;
+      this.initializeCarousel();
+      this.updateCarousel();
+      this.addEventListeners();
+    } else {
+      this.removeEventListeners();
+    }
+  }
+
+  removeEventListeners() {
+    this.testimonials.forEach((testimonial, index) => {
+      testimonial.removeEventListener(
+        "click",
+        this.moveToTestimonial.bind(this, index)
       );
     });
   }
