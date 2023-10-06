@@ -8,17 +8,20 @@ export default class TestimonialCarousel {
       this.container.querySelectorAll(".testimonial")
     );
     this.dotsContainer = this.container.querySelector(".dots");
+    this.minScreenSize = 800;
     this.currentIndex = 0;
 
     this.init();
   }
 
   init() {
-    document.addEventListener("DOMContentLoaded", () => {
-      this.initializeCarousel();
-      this.updateCarousel();
-      this.addEventListeners();
-    });
+    if (window.innerWidth > this.minScreenSize) {
+      document.addEventListener("DOMContentLoaded", () => {
+        this.initializeCarousel();
+        this.updateCarousel();
+        this.addEventListeners();
+      });
+    }
   }
 
   initializeCarousel() {
@@ -45,10 +48,6 @@ export default class TestimonialCarousel {
   }
 
   updateCarousel() {
-    this.testimonialWrapper.style.transform = `translateX(-${
-      (this.currentIndex + 1) * 600
-    }px)`;
-
     const numTestimonials = this.testimonials.length;
 
     this.testimonials.forEach((testimonial, index) => {
@@ -80,7 +79,11 @@ export default class TestimonialCarousel {
       }
     });
 
-    // Ensure the "prev" testimonial is not clickable when it's to the left of the "current" testimonial
+    const currentTestimonial = this.testimonials[this.currentIndex];
+    const currentTestimonialWidth = currentTestimonial.offsetWidth;
+    this.testimonialWrapper.style.transform = `translateX(-${
+      (this.currentIndex + 1) * currentTestimonialWidth
+    }px)`;
     if (this.currentIndex === 0) {
       this.testimonials[0].classList.remove("prev");
     }
