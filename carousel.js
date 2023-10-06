@@ -9,7 +9,7 @@ export default class TestimonialCarousel {
     );
     this.dotsContainer = this.container.querySelector(".dots");
     this.minScreenSize = 800;
-    this.currentIndex = 0;
+    this.currentIndex = 1;
 
     this.isDesktopCarousel = window.innerWidth > this.minScreenSize;
 
@@ -21,33 +21,33 @@ export default class TestimonialCarousel {
   init() {
     if (this.isDesktopCarousel) {
       document.addEventListener("DOMContentLoaded", () => {
-        this.initializeCarousel();
+        // this.initializeCarousel();
         this.updateCarousel();
         this.addEventListeners();
       });
     }
   }
 
-  initializeCarousel() {
-    // Clone the last testimonial and insert it at the beginning
-    const firstTestimonial = this.testimonials[0];
-    const lastTestimonial = this.testimonials[this.testimonials.length - 1];
-    const firstTestimonialClone = firstTestimonial.cloneNode(true);
-    const lastTestimonialClone = lastTestimonial.cloneNode(true);
+  // initializeCarousel() {
+  //   // Clone the last testimonial and insert it at the beginning
+  //   const firstTestimonial = this.testimonials[0];
+  //   const lastTestimonial = this.testimonials[this.testimonials.length - 1];
+  //   const firstTestimonialClone = firstTestimonial.cloneNode(true);
+  //   const lastTestimonialClone = lastTestimonial.cloneNode(true);
 
-    // Copy over the classes from the original testimonial
-    firstTestimonialClone.classList.add("next", "clone");
-    lastTestimonialClone.classList.add("prev", "clone");
+  //   // Copy over the classes from the original testimonial
+  //   firstTestimonialClone.classList.add("next", "clone");
+  //   lastTestimonialClone.classList.add("prev", "clone");
 
-    this.testimonialWrapper.insertBefore(
-      firstTestimonialClone,
-      this.testimonials[this.testimonials.length - 1].nextSibling
-    );
-    this.testimonialWrapper.insertBefore(
-      lastTestimonialClone,
-      this.testimonials[0]
-    );
-  }
+  //   this.testimonialWrapper.insertBefore(
+  //     firstTestimonialClone,
+  //     this.testimonials[this.testimonials.length - 1].nextSibling
+  //   );
+  //   this.testimonialWrapper.insertBefore(
+  //     lastTestimonialClone,
+  //     this.testimonials[0]
+  //   );
+  // }
 
   updateCarousel() {
     const numTestimonials = this.testimonials.length;
@@ -84,7 +84,7 @@ export default class TestimonialCarousel {
     const currentTestimonial = this.testimonials[this.currentIndex];
     const currentTestimonialWidth = currentTestimonial.offsetWidth;
     this.testimonialWrapper.style.transform = `translateX(-${
-      (this.currentIndex + 1) * currentTestimonialWidth
+      this.currentIndex * currentTestimonialWidth
     }px)`;
     if (this.currentIndex === 0) {
       this.testimonials[0].classList.remove("prev");
