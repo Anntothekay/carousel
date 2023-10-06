@@ -1,68 +1,60 @@
-/* Container for the carousel */
 .testimonial-carousel {
   display: flex;
+  flex-flow: row wrap;
   justify-content: center;
-  align-items: center;
-  perspective: 1000px; /* Add 3D perspective */
-  overflow: hidden; /* Hide overflowing content */
-  height: 200px; /* Adjust the height as needed */
+  overflow: hidden;
+  height: 600px;
+  max-width: 1440px;
+  margin: 0 auto;
 }
 
-/* Wrapper for the testimonials */
 .testimonial-wrapper {
   display: flex;
   flex-direction: row;
-  transition: transform 0.5s; /* Add a smooth transition */
-  transform-style: preserve-3d; /* Preserve 3D transformations */
+  transform-style: preserve-3d;
+  width: 600px;
+  transition: transform 0.5s;
 }
 
-/* Individual testimonial cards */
 .testimonial {
-  flex: 0 0 auto; /* Do not grow or shrink */
-  width: 200px; /* Set a fixed width for each card */
-  height: 150px; /* Set a fixed height for each card */
+  box-sizing: border-box;
+  transform: scale(calc(5 / 6));
+  transition: all 0.5s;
+  flex: 0 0 auto;
+  min-width: 600px;
+  min-height: 500px;
   background-color: #f4f4f4;
   border: 1px solid #ccc;
-  padding: 20px;
-  margin: 0 10px; /* Spacing between cards */
-  transform-origin: center; /* Set the rotation origin to the center */
-  position: absolute; /* Position testimonials absolutely */
-  top: 0;
-  left: 0;
-  right: 0;
-  opacity: 0; /* Hide all testimonials by default */
-  pointer-events: none; /* Disable click events for hidden testimonials */
+  padding: 48px;
+  transform-origin: center;
+  opacity: 0;
 }
 
-/* Center the current testimonial */
 .testimonial.current {
-  opacity: 1; /* Make the current testimonial visible */
-  transform: scale(1) translateX(0) rotateY(0deg); /* Reset transformations for center card */
-  z-index: 2; /* Place the center card on top of others */
-  pointer-events: auto; /* Enable click events for the center card */
+  opacity: 1;
+  z-index: 2;
+  transform: scale(1);
 }
 
-/* Previous testimonial */
 .testimonial.prev {
-  opacity: 1; /* Make the previous testimonial visible */
-  transform: scale(1) translateX(-250px) rotateY(-60deg); /* Translate and rotate previous card */
+  transform: translateX(150px) scale(calc(5 / 6));
+  opacity: 1;
   z-index: 1;
-  pointer-events: auto; /* Enable click events for the previous card */
 }
 
-/* Next testimonial */
 .testimonial.next {
-  opacity: 1; /* Make the next testimonial visible */
-  transform: scale(1) translateX(250px) rotateY(60deg); /* Translate and rotate next card */
+  transform: translateX(-150px) scale(calc(5 / 6));
+  opacity: 1;
   z-index: 1;
-  pointer-events: auto; /* Enable click events for the next card */
 }
 
 /* Dots for navigation */
 .dots {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  flex: 100%;
+  place-self: end;
+  gap: 12px;
 }
 
 .dot {
@@ -70,7 +62,6 @@
   height: 10px;
   background-color: #999;
   border-radius: 50%;
-  margin: 0 5px; /* Spacing between dots */
   cursor: pointer;
 }
 
