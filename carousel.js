@@ -1,6 +1,7 @@
 export default class TestimonialCarousel {
-  constructor(containerSelector) {
+  constructor(containerSelector, hasClones = true, offset = 0) {
     this.container = document.querySelector(containerSelector);
+    this.hasClones = hasClones;
     this.testimonialWrapper = this.container.querySelector(
       ".testimonial-wrapper"
     );
@@ -9,7 +10,7 @@ export default class TestimonialCarousel {
     );
     this.dotsContainer = this.container.querySelector(".dots");
     this.minScreenSize = 800;
-    this.currentIndex = 0;
+    this.currentIndex = offset;
 
     this.isDesktopCarousel = window.innerWidth > this.minScreenSize;
 
@@ -21,21 +22,19 @@ export default class TestimonialCarousel {
   init() {
     if (this.isDesktopCarousel) {
       document.addEventListener("DOMContentLoaded", () => {
-        this.initializeCarousel();
+        this.hasClones && this.cloneOuterTestimonials();
         this.updateCarousel();
         this.addEventListeners();
       });
     }
   }
 
-  initializeCarousel() {
-    // Clone the last testimonial and insert it at the beginning
+  cloneOuterTestimonials() {
     const firstTestimonial = this.testimonials[0];
     const lastTestimonial = this.testimonials[this.testimonials.length - 1];
     const firstTestimonialClone = firstTestimonial.cloneNode(true);
     const lastTestimonialClone = lastTestimonial.cloneNode(true);
 
-    // Copy over the classes from the original testimonial
     firstTestimonialClone.classList.add("next", "clone");
     lastTestimonialClone.classList.add("prev", "clone");
 
@@ -49,8 +48,20 @@ export default class TestimonialCarousel {
     );
   }
 
+  buildDotNavigation(testimonialLength) {
+    this.dotsContainer.innerHTML = "";
+    for (let i = 0; i < testimonialLength; i++) {
+      const dot = document.createElement("span");
+      dot.classList.add("dot");
+      dot.addEventListener("click", () => this.moveToTestimonial(i));
+      this.dotsContainer.appendChild(dot);
+    }
+    const dots = this.dotsContainer.querySelectorAll(".dot");
+    dots[this.currentIndex].classList.add("active");
+  }
+
   updateCarousel() {
-    const numTestimonials = this.testimonials.length;
+    const testimonialLength = this.testimonials.length;
 
     this.testimonials.forEach((testimonial, index) => {
       const offset = index - this.currentIndex;
@@ -60,11 +71,11 @@ export default class TestimonialCarousel {
           testimonial.classList.add("current");
           testimonial.classList.remove("prev", "next", "left", "right");
           break;
-        case offset === 1 || offset === -numTestimonials + 1:
+        case offset === 1 || offset === testimonialLength + 1:
           testimonial.classList.add("next");
           testimonial.classList.remove("current", "prev", "left", "right");
           break;
-        case offset === -1 || offset === numTestimonials - 1:
+        case offset === -1 || offset === testimonialLength - 1:
           testimonial.classList.add("prev");
           testimonial.classList.remove("current", "next", "left", "right");
           break;
@@ -84,21 +95,13 @@ export default class TestimonialCarousel {
     const currentTestimonial = this.testimonials[this.currentIndex];
     const currentTestimonialWidth = currentTestimonial.offsetWidth;
     this.testimonialWrapper.style.transform = `translateX(-${
-      (this.currentIndex + 1) * currentTestimonialWidth
+      (this.currentIndex + (this.hasClones ? 1 : 0)) * currentTestimonialWidth
     }px)`;
     if (this.currentIndex === 0) {
       this.testimonials[0].classList.remove("prev");
     }
 
-    this.dotsContainer.innerHTML = "";
-    for (let i = 0; i < numTestimonials; i++) {
-      const dot = document.createElement("span");
-      dot.classList.add("dot");
-      dot.addEventListener("click", () => this.moveToTestimonial(i));
-      this.dotsContainer.appendChild(dot);
-    }
-    const dots = this.dotsContainer.querySelectorAll(".dot");
-    dots[this.currentIndex].classList.add("active");
+    this.buildDotNavigation(testimonialLength);
   }
 
   moveToTestimonial(index) {
@@ -117,7 +120,7 @@ export default class TestimonialCarousel {
   handleWindowResize() {
     if (!this.isDesktopCarousel && window.innerWidth > 800) {
       this.isDesktopCarousel = true;
-      this.initializeCarousel();
+      this.cloneOuterTestimonials();
       this.updateCarousel();
       this.addEventListeners();
     } else {
