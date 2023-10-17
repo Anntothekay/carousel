@@ -66,40 +66,21 @@ export default class TestimonialCarousel {
     this.testimonials.forEach((testimonial, index) => {
       const offset = index - this.currentIndex;
 
-      switch (true) {
-        case offset === 0:
-          testimonial.classList.add("current");
-          testimonial.classList.remove("prev", "next", "left", "right");
-          break;
-        case offset === 1 || offset === testimonialLength + 1:
-          testimonial.classList.add("next");
-          testimonial.classList.remove("current", "prev", "left", "right");
-          break;
-        case offset === -1 || offset === testimonialLength - 1:
-          testimonial.classList.add("prev");
-          testimonial.classList.remove("current", "next", "left", "right");
-          break;
-        case offset < -1:
-          testimonial.classList.add("left");
-          testimonial.classList.remove("current", "prev", "next", "right");
-          break;
-        case offset > 1:
-          testimonial.classList.add("right");
-          testimonial.classList.remove("current", "prev", "next", "left");
-          break;
-        default:
-          break;
+      // Clear all classes
+      testimonial.className = "testimonial";
+
+      if (offset === 0) {
+        testimonial.classList.add("current");
+      } else if (offset === 1 || offset === -testimonialLength + 1) {
+        testimonial.classList.add("next");
+      } else if (offset === -1 || offset === testimonialLength - 1) {
+        testimonial.classList.add("prev");
+      } else if (offset < -1) {
+        testimonial.classList.add("left");
+      } else if (offset > 1) {
+        testimonial.classList.add("right");
       }
     });
-
-    const currentTestimonial = this.testimonials[this.currentIndex];
-    const currentTestimonialWidth = currentTestimonial.offsetWidth;
-    this.testimonialWrapper.style.transform = `translateX(-${
-      (this.currentIndex + (this.hasClones ? 1 : 0)) * currentTestimonialWidth
-    }px)`;
-    if (this.currentIndex === 0) {
-      this.testimonials[0].classList.remove("prev");
-    }
 
     this.buildDotNavigation(testimonialLength);
   }
