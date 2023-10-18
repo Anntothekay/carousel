@@ -1,7 +1,13 @@
 export default class TestimonialCarousel {
-  constructor(containerSelector, hasClones = true, offset = 0) {
+  constructor(containerSelector, options = {}) {
+    this.options = {
+      offset: options.offset || 0,
+      autoplay: {
+        enabled: options.autoplay?.enabled || false,
+        delay: options.autoplay?.delay || 3000,
+      },
+    };
     this.container = document.querySelector(containerSelector);
-    this.hasClones = hasClones;
     this.testimonialWrapper = this.container.querySelector(
       ".testimonial-wrapper"
     );
@@ -10,7 +16,7 @@ export default class TestimonialCarousel {
     );
     this.dotsContainer = this.container.querySelector(".dots");
     this.minScreenSize = 800;
-    this.currentIndex = offset;
+    this.currentIndex = this.options.offset;
 
     this.isDesktopCarousel = window.innerWidth > this.minScreenSize;
 
@@ -22,30 +28,13 @@ export default class TestimonialCarousel {
   init() {
     if (this.isDesktopCarousel) {
       document.addEventListener("DOMContentLoaded", () => {
-        this.hasClones && this.cloneOuterTestimonials();
         this.updateCarousel();
         this.addEventListeners();
+        if (this.options.autoplay.enabled) {
+          this.startAutoplay();
+        }
       });
     }
-  }
-
-  cloneOuterTestimonials() {
-    const firstTestimonial = this.testimonials[0];
-    const lastTestimonial = this.testimonials[this.testimonials.length - 1];
-    const firstTestimonialClone = firstTestimonial.cloneNode(true);
-    const lastTestimonialClone = lastTestimonial.cloneNode(true);
-
-    firstTestimonialClone.classList.add("next", "clone");
-    lastTestimonialClone.classList.add("prev", "clone");
-
-    this.testimonialWrapper.insertBefore(
-      firstTestimonialClone,
-      this.testimonials[this.testimonials.length - 1].nextSibling
-    );
-    this.testimonialWrapper.insertBefore(
-      lastTestimonialClone,
-      this.testimonials[0]
-    );
   }
 
   buildDotNavigation(testimonialLength) {
@@ -62,11 +51,12 @@ export default class TestimonialCarousel {
 
   updateCarousel() {
     const testimonialLength = this.testimonials.length;
+    const leftSideItemCount = Math.floor((testimonialLength - 1) / 2);
+    const rightSideItemCount = Math.ceil((testimonialLength - 1) / 2);
 
     this.testimonials.forEach((testimonial, index) => {
       const offset = index - this.currentIndex;
 
-      // Clear all classes
       testimonial.className = "testimonial";
 
       if (offset === 0) {
@@ -75,9 +65,15 @@ export default class TestimonialCarousel {
         testimonial.classList.add("next");
       } else if (offset === -1 || offset === testimonialLength - 1) {
         testimonial.classList.add("prev");
-      } else if (offset < -1) {
+      } else if (
+        (offset < -1 && offset >= -leftSideItemCount) ||
+        offset > rightSideItemCount
+      ) {
         testimonial.classList.add("left");
-      } else if (offset > 1) {
+      } else if (
+        (offset > 1 && offset <= rightSideItemCount) ||
+        offset < -leftSideItemCount
+      ) {
         testimonial.classList.add("right");
       }
     });
@@ -90,18 +86,38 @@ export default class TestimonialCarousel {
     this.updateCarousel();
   }
 
+  startAutoplay() {
+    this.autoplayInterval = setInterval(() => {
+      // Move to the next testimonial
+      const nextIndex = (this.currentIndex + 1) % this.testimonials.length;
+      this.moveToTestimonial(nextIndex);
+    }, this.options.autoplay.delay);
+  }
+
+  stopAutoplay() {
+    clearInterval(this.autoplayInterval);
+  }
+
   addEventListeners() {
     this.testimonials.forEach((testimonial, index) => {
       testimonial.addEventListener("click", () =>
         this.moveToTestimonial(index)
       );
+      testimonial.addEventListener("mouseenter", () => {
+        this.stopAutoplay();
+      });
+
+      testimonial.addEventListener("mouseleave", () => {
+        if (this.options.autoplay.enabled) {
+          this.startAutoplay();
+        }
+      });
     });
   }
 
   handleWindowResize() {
     if (!this.isDesktopCarousel && window.innerWidth > 800) {
       this.isDesktopCarousel = true;
-      this.cloneOuterTestimonials();
       this.updateCarousel();
       this.addEventListeners();
     } else {

@@ -77,7 +77,7 @@ body {
   opacity: 0.5;
   z-index: 1;
 }
-/* 
+
 .testimonial.left {
   transform: translateX(-1000px) scale(calc(5 / 6));
   opacity: 0;
@@ -87,10 +87,6 @@ body {
   transform: translateX(1000px) scale(calc(5 / 6));
   opacity: 0;
 }
-.testimonial.right,
-.testimonial.left {
-  transition: none !important;
-} */
 
 .dummy-img {
   width: 106px;
