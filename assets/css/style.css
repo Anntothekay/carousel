@@ -169,7 +169,9 @@ a {
   }
   .testimonial,
   .testimonial.next,
-  .testimonial.prev {
+  .testimonial.prev,
+  .testimonial.left,
+  .testimonial.right {
     width: calc(100% - 50px);
     min-width: auto;
     transform: scale(1) translateX(0);
