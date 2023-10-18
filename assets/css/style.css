@@ -162,7 +162,10 @@ a {
     width: 100%;
     overflow-y: scroll;
     gap: 12px;
-    transform: translateX(0) !important;
+    align-items: stretch;
+  }
+  .testimonial {
+    position: relative;
   }
   .testimonial,
   .testimonial.next,

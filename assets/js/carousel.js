@@ -1,4 +1,6 @@
 export default class TestimonialCarousel {
+  #currentIndex = 0;
+
   constructor(containerSelector, options = {}) {
     this.options = {
       offset: options.offset || 0,
@@ -20,7 +22,7 @@ export default class TestimonialCarousel {
 
     this.isDesktopCarousel = window.innerWidth > this.minScreenSize;
 
-    window.addEventListener("resize", this.handleWindowResize.bind(this));
+    window.addEventListener("resize", () => this.handleWindowResize());
 
     this.init();
   }
@@ -88,7 +90,6 @@ export default class TestimonialCarousel {
 
   startAutoplay() {
     this.autoplayInterval = setInterval(() => {
-      // Move to the next testimonial
       const nextIndex = (this.currentIndex + 1) % this.testimonials.length;
       this.moveToTestimonial(nextIndex);
     }, this.options.autoplay.delay);
@@ -103,15 +104,20 @@ export default class TestimonialCarousel {
       testimonial.addEventListener("click", () =>
         this.moveToTestimonial(index)
       );
-      testimonial.addEventListener("mouseenter", () => {
-        this.stopAutoplay();
-      });
-
+      testimonial.addEventListener("mouseenter", () => this.stopAutoplay());
       testimonial.addEventListener("mouseleave", () => {
         if (this.options.autoplay.enabled) {
           this.startAutoplay();
         }
       });
+    });
+  }
+
+  removeEventListeners() {
+    this.testimonials.forEach((testimonial) => {
+      testimonial.removeEventListener("click", this.moveToTestimonial);
+      testimonial.removeEventListener("mouseover", this.stopAutoplay);
+      testimonial.removeEventListener("mouseenter", this.stopAutoplay);
     });
   }
 
@@ -123,14 +129,5 @@ export default class TestimonialCarousel {
     } else {
       this.removeEventListeners();
     }
-  }
-
-  removeEventListeners() {
-    this.testimonials.forEach((testimonial, index) => {
-      testimonial.removeEventListener(
-        "click",
-        this.moveToTestimonial.bind(this, index)
-      );
-    });
   }
 }
