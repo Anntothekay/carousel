@@ -2,8 +2,7 @@ body {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   --primary-color: rgb(255, 0, 106);
 }
-
-.testimonial-carousel {
+.carousel {
   display: flex;
   flex-flow: row wrap;
   justify-content: center;
@@ -13,18 +12,20 @@ body {
   width: 100%;
 }
 
-.testimonial-wrapper {
+.carousel-wrapper {
   display: flex;
   flex-direction: row;
+  align-items: center;
+  justify-content: center;
   transform-style: preserve-3d;
-  width: 600px;
+  width: 100%;
   transition: transform 0.5s;
   padding-bottom: 48px;
   min-height: 600px;
   align-items: center;
 }
 
-.testimonial {
+.carousel-card {
   box-sizing: border-box;
   transform: scale(calc(5 / 6));
   transition: all 0.5s;
@@ -51,39 +52,30 @@ body {
   position: absolute;
 }
 
-.testimonial.current {
+.carousel-card.is-current {
   opacity: 1;
   z-index: 2;
   transform: scale(1);
 }
 
-.testimonial.next:not(.clone),
-.testimonial.prev:not(.clone) {
-  cursor: pointer;
-}
-
-.testimonial.clone {
-  pointer-events: none;
-}
-
-.testimonial.prev {
+.carousel-card.is-prev {
   transform: translateX(-450px) scale(calc(5 / 6));
   opacity: 0.5;
   z-index: 1;
 }
 
-.testimonial.next {
+.carousel-card.is-next {
   transform: translateX(450px) scale(calc(5 / 6));
   opacity: 0.5;
   z-index: 1;
 }
 
-.testimonial.left {
+.carousel-card.is-left {
   transform: translateX(-1000px) scale(calc(5 / 6));
   opacity: 0;
 }
 
-.testimonial.right {
+.carousel-card.is-right {
   transform: translateX(1000px) scale(calc(5 / 6));
   opacity: 0;
 }
@@ -113,7 +105,7 @@ body {
 }
 
 /* Style the active dot */
-.dot.active {
+.dot.is-active {
   background-color: #333;
 }
 
@@ -158,29 +150,27 @@ a {
 }
 
 @media only screen and (max-width: 800px) {
-  .testimonial-wrapper {
+  .carousel-wrapper {
     width: 100%;
     overflow-y: scroll;
     gap: 12px;
     align-items: stretch;
+    justify-content: flex-start;
   }
-  .testimonial {
+  .carousel-card {
     position: relative;
   }
-  .testimonial,
-  .testimonial.next,
-  .testimonial.prev,
-  .testimonial.left,
-  .testimonial.right {
+  .carousel-card,
+  .carousel-card.is-next,
+  .carousel-card.is-prev,
+  .carousel-card.is-left,
+  .carousel-card.is-right {
     width: calc(100% - 50px);
     min-width: auto;
     transform: scale(1) translateX(0);
     opacity: 1;
   }
   .dots {
-    display: none;
-  }
-  .clone {
     display: none;
   }
 }

@@ -1,6 +1,4 @@
-export default class TestimonialCarousel {
-  #currentIndex = 0;
-
+export default class Carousel {
   constructor(containerSelector, options = {}) {
     this.options = {
       offset: options.offset || 0,
@@ -9,18 +7,27 @@ export default class TestimonialCarousel {
         delay: options.autoplay?.delay || 3000,
       },
     };
+
     this.container = document.querySelector(containerSelector);
-    this.testimonialWrapper = this.container.querySelector(
-      ".testimonial-wrapper"
+    this.carouselWrapper = this.container.querySelector(".js-carousel-wrapper");
+    this.carousel = Array.from(
+      this.container.querySelectorAll(".js-carousel-card")
     );
-    this.testimonials = Array.from(
-      this.container.querySelectorAll(".testimonial")
-    );
-    this.dotsContainer = this.container.querySelector(".dots");
-    this.minScreenSize = 800;
+    this.dotsContainer = this.container.querySelector(".js-dots");
+    this.carouselItemClassName = "carousel-card";
+    this.carouselLength = this.carousel.length;
     this.currentIndex = this.options.offset;
 
-    this.isDesktopCarousel = window.innerWidth > this.minScreenSize;
+    this.minScreenSize = 768; // mq-medium
+
+    this.isDesktopCarousel =
+      window.innerWidth > this.minScreenSize &&
+      window.screen.availWidth > this.minScreenSize;
+
+    // bind event handler functions
+    this.stopAutoplayHandler = () => this.stopAutoplay();
+    this.startAutoplayHandler = () => this.startAutoplay();
+    this.boundMoveToCarouselItem = [];
 
     window.addEventListener("resize", () => this.handleWindowResize());
 
@@ -30,8 +37,9 @@ export default class TestimonialCarousel {
   init() {
     if (this.isDesktopCarousel) {
       document.addEventListener("DOMContentLoaded", () => {
-        this.updateCarousel();
         this.addEventListeners();
+        this.buildDotNavigation(this.carouselLength);
+        this.updateCarousel();
         if (this.options.autoplay.enabled) {
           this.startAutoplay();
         }
@@ -39,60 +47,69 @@ export default class TestimonialCarousel {
     }
   }
 
-  buildDotNavigation(testimonialLength) {
+  updateDots() {
+    const dots = this.dotsContainer.querySelectorAll(".dot");
+    dots.forEach((dot) => dot.classList.remove("is-active"));
+    dots[this.currentIndex].classList.add("is-active");
+  }
+
+  buildDotNavigation(carouselLength) {
     this.dotsContainer.innerHTML = "";
-    for (let i = 0; i < testimonialLength; i++) {
+    for (let i = 0; i < carouselLength; i++) {
       const dot = document.createElement("span");
       dot.classList.add("dot");
-      dot.addEventListener("click", () => this.moveToTestimonial(i));
+      dot.addEventListener("click", () => this.moveToCarouselItem(i));
       this.dotsContainer.appendChild(dot);
     }
-    const dots = this.dotsContainer.querySelectorAll(".dot");
-    dots[this.currentIndex].classList.add("active");
+    this.updateDots();
   }
 
   updateCarousel() {
-    const testimonialLength = this.testimonials.length;
-    const leftSideItemCount = Math.floor((testimonialLength - 1) / 2);
-    const rightSideItemCount = Math.ceil((testimonialLength - 1) / 2);
+    const leftSideItemCount = Math.floor((this.carouselLength - 1) / 2);
+    const rightSideItemCount = Math.ceil((this.carouselLength - 1) / 2);
 
-    this.testimonials.forEach((testimonial, index) => {
+    this.carousel.forEach((carouselItem, index) => {
       const offset = index - this.currentIndex;
 
-      testimonial.className = "testimonial";
+      carouselItem.className = this.carouselItemClassName;
 
       if (offset === 0) {
-        testimonial.classList.add("current");
-      } else if (offset === 1 || offset === -testimonialLength + 1) {
-        testimonial.classList.add("next");
-      } else if (offset === -1 || offset === testimonialLength - 1) {
-        testimonial.classList.add("prev");
+        carouselItem.classList.add("is-current");
+      } else if (offset === 1 || offset === -this.carouselLength + 1) {
+        carouselItem.classList.add("is-next");
+      } else if (offset === -1 || offset === this.carouselLength - 1) {
+        carouselItem.classList.add("is-prev");
       } else if (
         (offset < -1 && offset >= -leftSideItemCount) ||
         offset > rightSideItemCount
       ) {
-        testimonial.classList.add("left");
+        carouselItem.classList.add("is-left");
       } else if (
         (offset > 1 && offset <= rightSideItemCount) ||
         offset < -leftSideItemCount
       ) {
-        testimonial.classList.add("right");
+        carouselItem.classList.add("is-right");
       }
     });
 
-    this.buildDotNavigation(testimonialLength);
+    this.updateDots();
   }
 
-  moveToTestimonial(index) {
+  moveToCarouselItem(index) {
     this.currentIndex = index;
     this.updateCarousel();
   }
+  moveToCarouselItemHandler(index, event) {
+    this.moveToCarouselItem(index);
+  }
 
   startAutoplay() {
-    this.autoplayInterval = setInterval(() => {
-      const nextIndex = (this.currentIndex + 1) % this.testimonials.length;
-      this.moveToTestimonial(nextIndex);
-    }, this.options.autoplay.delay);
+    if (this.options.autoplay.enabled) {
+      this.autoplayInterval = setInterval(() => {
+        const nextIndex = (this.currentIndex + 1) % this.carouselLength;
+        this.moveToCarouselItem(nextIndex);
+      }, this.options.autoplay.delay);
+    }
   }
 
   stopAutoplay() {
@@ -100,33 +117,65 @@ export default class TestimonialCarousel {
   }
 
   addEventListeners() {
-    this.testimonials.forEach((testimonial, index) => {
-      testimonial.addEventListener("click", () =>
-        this.moveToTestimonial(index)
+    this.carousel.forEach((carouselItem, index) => {
+      const boundMoveToCarouselItem = this.moveToCarouselItemHandler.bind(
+        this,
+        index
       );
-      testimonial.addEventListener("mouseenter", () => this.stopAutoplay());
-      testimonial.addEventListener("mouseleave", () => {
-        if (this.options.autoplay.enabled) {
-          this.startAutoplay();
-        }
-      });
+      carouselItem.addEventListener("click", boundMoveToCarouselItem);
+      this.boundMoveToCarouselItem.push(boundMoveToCarouselItem);
     });
+
+    this.carouselWrapper.addEventListener(
+      "mouseenter",
+      this.stopAutoplayHandler
+    );
+    this.carouselWrapper.addEventListener(
+      "mouseleave",
+      this.startAutoplayHandler
+    );
   }
 
   removeEventListeners() {
-    this.testimonials.forEach((testimonial) => {
-      testimonial.removeEventListener("click", this.moveToTestimonial);
-      testimonial.removeEventListener("mouseover", this.stopAutoplay);
-      testimonial.removeEventListener("mouseenter", this.stopAutoplay);
+    this.carousel.forEach((carouselItem, index) => {
+      const boundMoveToCarouselItem = this.boundMoveToCarouselItem[index];
+
+      carouselItem.removeEventListener("click", boundMoveToCarouselItem);
     });
+
+    this.carouselWrapper.removeEventListener(
+      "mouseenter",
+      this.stopAutoplayHandler
+    );
+    this.carouselWrapper.removeEventListener(
+      "mouseleave",
+      this.startAutoplayHandler
+    );
   }
 
   handleWindowResize() {
-    if (!this.isDesktopCarousel && window.innerWidth > 800) {
+    if (
+      !this.isDesktopCarousel &&
+      window.innerWidth >= this.minScreenSize &&
+      window.screen.availWidth >= this.minScreenSize
+    ) {
       this.isDesktopCarousel = true;
-      this.updateCarousel();
       this.addEventListeners();
-    } else {
+      this.buildDotNavigation(this.carouselLength);
+      this.updateCarousel();
+      if (this.options.autoplay.enabled) {
+        this.startAutoplay();
+      }
+    } else if (
+      this.isDesktopCarousel &&
+      window.innerWidth < this.minScreenSize &&
+      window.screen.availWidth < this.minScreenSize
+    ) {
+      if (this.options.autoplay.enabled) {
+        this.stopAutoplay();
+      }
+      this.isDesktopCarousel = false;
+      this.dotsContainer.innerHTML = "";
       this.removeEventListeners();
     }
   }
